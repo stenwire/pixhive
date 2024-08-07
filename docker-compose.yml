@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  pixhive-server-postgresdb:
+    restart: always
+    image: postgres:latest
+    container_name: pixhive-server-postgresdb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      retries: 5
+
+  app:
+    container_name: pixhive-server
+    env_file: .env
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: gunicorn --bind 0.0.0.0:8000 config.wsgi:application
+    ports:
+      - "8000:8000"
+    volumes:
+      - appdata:/app
+      - appdata:/app/contactto/static
+    depends_on:
+      pixhive-server-postgresdb:
+        condition: service_healthy
+
+  pgadmin:
+    restart: always
+    image: dpage/pgadmin4
+    container_name: pixhive-pgadmin 
+    depends_on:
+      - pixhive-server-postgresdb
+    ports:
+      - "5051:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: 'False'
+      PGADMIN_CONFIG_WTF_CSRF_CHECK_DEFAULT: 'False'
+
+networks:
+  web_network:
+    driver: bridge
+
+volumes:
+  pgdata:
+  appdata:
+    driver: local

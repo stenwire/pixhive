@@ -9,6 +9,9 @@ psycopg2-binary = "*"
 django = "*"
 djangorestframework = "*"
 djangorestframework-simplejwt = "*"
+isort = "*"
+black = "*"
+gunicorn = "*"
 
 [dev-packages]
 
