@@ -17,6 +17,7 @@ django-anymail = {extras = ["mailgun"], version = "*"}
 pydantic = "*"
 pydantic-settings = "*"
 dj-database-url = "*"
+django-extensions = "*"
 
 [dev-packages]
 ruff = "*"
