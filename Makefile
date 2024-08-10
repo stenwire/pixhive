@@ -11,7 +11,7 @@ build-up:
 	@docker compose up --build
 
 createsuperuser:
-	@docker compose run --rm app python manage.py createsuperuser
+	@winpty docker compose run --rm app python manage.py createsuperuser
 
 down:
 	@docker compose down --remove-orphans
