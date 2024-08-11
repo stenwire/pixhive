@@ -1,0 +1,74 @@
+name: Run tests
+
+on: [push]
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Pipenv
+        run: |
+          pip install pipenv
+          pipenv --version
+      
+      - name: Cache Pipenv Virtualenv
+        uses: actions/cache@v4
+        id: pipenv-cache
+        with:
+          path: ~/.local/share/virtualenvs
+          key: ${{ runner.os }}-pipenv-v2-${{ hashFiles('**/Pipfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pipenv-v2-
+
+      - name: Install Dependencies
+        run: pipenv install --deploy --dev
+        if: steps.pipenv-cache.outputs.cache-hit != 'true'
+      
+      - name: Lint and format checks
+        run: |
+          pipenv run ruff check .
+          pipenv run ruff format --check .
+      
+      - name: Set environment variables
+        run: |
+          cp .env.ci .env
+      
+      - name: Running Django migrations check to ensure that there are no migrations left to create
+        env:
+          DATABASE_URL: 'postgres://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/test?sslmode=disable'
+
+        run: | 
+          pipenv run python manage.py makemigrations --check --dry-run
+
+      - name: Run tests
+        env:
+          DATABASE_URL: 'postgres://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/test?sslmode=disable'
+
+        run: |
+          pipenv run python manage.py migrate --noinput
+          pipenv run py.test

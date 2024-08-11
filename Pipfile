@@ -4,13 +4,25 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-python-dotenv = "*"
-psycopg2-binary = "*"
-django = "*"
 djangorestframework = "*"
+django = "*"
+gunicorn = "*"
+djoser = "*"
 djangorestframework-simplejwt = "*"
+django-cors-headers = "*"
+requests = "*"
+pillow = "*"
+psycopg2-binary = "*"
+django-anymail = {extras = ["mailgun"], version = "*"}
+pydantic = "*"
+pydantic-settings = "*"
+dj-database-url = "*"
 
 [dev-packages]
+ruff = "*"
+pytest = "*"
+pytest-django = "*"
+django-extensions = "*"
 
 [requires]
-python_version = "3.11"
+python_version = "3.12"
