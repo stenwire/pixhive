@@ -1,8 +1,8 @@
-# djangoer
-A production-ready template for Django applications
+# Pixhive
+====
 
 ## Introduction
-This Django template was created out of a need for consistent structure for projects with a setup that's easy to understand and use with as minimal additional setup as possible.
+===
 
 ### How to use
 Three commands and you're good to go:
@@ -12,7 +12,6 @@ Three commands and you're good to go:
 
 A much detailed explanation is in the [How to use (fleshed-out)](#how-to-use-fleshed-out) section.
 
-## Features
 - Uses standard Django application structure. No folder complexities to be navigated through.
 - Drop-in template, two commands and you have all the features at your fingertips: `make build && make up`
 - Built-in simple Docker set up that just works!
@@ -24,13 +23,6 @@ A much detailed explanation is in the [How to use (fleshed-out)](#how-to-use-fle
 - Environment based settings file
 - Everything you need to start implementing your first API.
 
-### What is hoped to be achieved
-- Simplicity; no need for bloated classes and huge utils that you'll likely never use. Everything here should be very much needed in most projects
-- Low barrier for entry; a template that is easy to start with and does not seem too advanced for beginners to use
-- Production-ready; the above does not remove the important fact that this should be always production-ready without obvious faults
-- Consistency; a smell for codebases is you not having a 'knowing' of where certain code is located. A wanted structure is one that's easy to navigate
-
-### What is not hoped to be achieved
 - Utility dump; this template will not be where all sorts of utilities are dumped because, 'why not?'.
 - I'm out of points, sorry. This kind of stuff should be like 3 points or so, but then...
 
@@ -106,34 +98,6 @@ However, if you're not using make, you can run commands in Docker using the synt
 - Start a virtual environment in the root folder by running `pipenv shell`
 - On your VSCode, at the bottom right corner, you'll see a Python version, click on it and select the Python interpreter created from your virtual environment.
 You can continue your work inside docker.
-
-## Change Log
-### 31-01-2023
-- Initial release
-- Added support for Postgres
-- Added support for .env files
-- Added support for typed environmental variables using Pydantic
-- Added Docker support
-
-### 20-02-2023
-- Added Make command for formatting and linting
-
-### 13-01-2024
-- Added auto removal of containers when running one-off commands
-
-### 24-01-2024
-- Trim down Dockerfile to reduce needless steps and upgrade python version
-- Added extensions for resetting db
-- Added command to run any command on app shell
-- Replaced test runner with pytest
-- Renamed `makemigrations` command to `migrations`
-- Removed black and ruff
-- Upgraded pydantic
-- Replaced linter and formatter with ruff
-- Bumped Python version to 3.12
-- Added environment based settings file
-- Added changelog
-
 
 
 ## Got problems?
