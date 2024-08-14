@@ -18,6 +18,8 @@ pydantic = "*"
 pydantic-settings = "*"
 dj-database-url = "*"
 django-extensions = "*"
+pyotp = "*"
+mailtrap = "*"
 
 [dev-packages]
 ruff = "*"

@@ -20,7 +20,6 @@ from pydantic_settings import BaseSettings
 
 EnvironmentType = Literal["dev", "staging", "prod"]
 
-
 class GeneralSettings(BaseSettings):
     DEBUG: bool = False
     SECRET_KEY: str
@@ -89,14 +88,20 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
-        "APP_DIRS": True,
+        # "DIRS": [BASE_DIR / "templates"],
+        # "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+            ],
+            "loaders": [
+                (
+                    "django.template.loaders.app_directories.Loader",
+                    [BASE_DIR / "templates"],
+                ),
             ],
         },
     },
@@ -182,6 +187,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
+    "USER_ID_FIELD": "pk",
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "AUTH_HEADER_TYPES": ("Bearer", "JWT"),
     "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
@@ -189,3 +195,5 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_LIFETIME_LATE_USER": timedelta(days=1),
     "SLIDING_TOKEN_LIFETIME_LATE_USER": timedelta(days=30),
 }
+
+AUTH_USER_MODEL = 'authentication.CustomUser'
