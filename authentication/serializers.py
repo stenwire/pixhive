@@ -2,6 +2,7 @@ from django.contrib.auth import authenticate
 from rest_framework import exceptions, serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import CustomUser
+from .schema import CustomUserInput, OTPInput
 # from utils.serializers import BaseSerializer
 
 class UserModelSerializer(serializers.ModelSerializer):
@@ -10,7 +11,7 @@ class UserModelSerializer(serializers.ModelSerializer):
     fields = ['email', 'password']
     extra_kwargs = {'password': {'write_only': True, 'min_length': 8}}
 
-  def create(self, validated_data):
+  def create(self, validated_data: CustomUserInput):
     user = CustomUser.objects.create_user(**validated_data)
     return user
 
@@ -24,7 +25,7 @@ class UserModelSerializer(serializers.ModelSerializer):
 class VerifyOTPSerializer(serializers.Serializer):
     otp = serializers.CharField(max_length=6, min_length=6, required=True)
 
-    def validate_otp(self, value):
+    def validate_otp(self, value: OTPInput):
         if not value.isdigit():
             raise serializers.ValidationError("OTP must be numeric.")
         return value
