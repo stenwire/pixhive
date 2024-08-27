@@ -20,6 +20,7 @@ dj-database-url = "*"
 django-extensions = "*"
 pyotp = "*"
 mailtrap = "*"
+django-ninja = "*"
 
 [dev-packages]
 ruff = "*"
