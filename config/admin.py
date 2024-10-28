@@ -1,7 +1,4 @@
 from django.contrib import admin
-from authentication.models import CustomUser
-
-admin.autodiscover()
 
 
 class PixhiveAdminSite(admin.AdminSite):
@@ -12,5 +9,3 @@ class PixhiveAdminSite(admin.AdminSite):
 
 
 admin_site = PixhiveAdminSite(name="Pixhive Admin Site")
-
-admin_site.register(CustomUser)

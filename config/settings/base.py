@@ -20,6 +20,7 @@ from pydantic_settings import BaseSettings
 
 EnvironmentType = Literal["dev", "staging", "prod"]
 
+
 class GeneralSettings(BaseSettings):
     DEBUG: bool = False
     SECRET_KEY: str
@@ -186,6 +187,7 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
     ),
 }
 
@@ -199,4 +201,25 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_LIFETIME_LATE_USER": timedelta(days=30),
 }
 
-AUTH_USER_MODEL = 'authentication.CustomUser'
+AUTH_USER_MODEL = "authentication.CustomUser"
+
+
+class EmailConfig(BaseSettings):
+    EMAIL_BACKEND: str
+    EMAIL_HOST: str
+    EMAIL_PORT: int
+    EMAIL_USE_TLS: bool
+    EMAIL_USE_SSL: bool
+    EMAIL_HOST_USER: str
+    EMAIL_HOST_PASSWORD: str
+
+
+EMAIl_CONFIG = EmailConfig()
+
+EMAIL_BACKEND = EMAIl_CONFIG.EMAIL_BACKEND
+EMAIL_HOST = EMAIl_CONFIG.EMAIL_HOST
+EMAIL_PORT = EMAIl_CONFIG.EMAIL_PORT
+EMAIL_USE_TLS = EMAIl_CONFIG.EMAIL_USE_TLS
+EMAIL_USE_SSL = EMAIl_CONFIG.EMAIL_USE_SSL
+EMAIL_HOST_USER = EMAIl_CONFIG.EMAIL_HOST_USER
+EMAIL_HOST_PASSWORD = EMAIl_CONFIG.EMAIL_HOST_PASSWORD
