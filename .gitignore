@@ -131,3 +131,4 @@ dmypy.json
 
 # custom
 *backup_files/
+config/media/
