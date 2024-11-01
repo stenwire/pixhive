@@ -10,13 +10,17 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
+import os
 from datetime import timedelta
 from pathlib import Path
 from typing import Literal
 
 import dj_database_url
+import environ
 from pydantic import PostgresDsn
 from pydantic_settings import BaseSettings
+
+env = environ.Env()
 
 EnvironmentType = Literal["dev", "staging", "prod"]
 
@@ -45,6 +49,10 @@ SECRET_KEY = GENERAL_SETTINGS.SECRET_KEY
 DEBUG = GENERAL_SETTINGS.DEBUG
 
 ALLOWED_HOSTS = GENERAL_SETTINGS.ALLOWED_HOSTS
+
+APP_DOMAIN = env("APP_DOMAIN", default="http://localhost:8000")
+
+FILE_UPLOAD_STORAGE = env("FILE_UPLOAD_STORAGE", default="local")  # local | s3
 
 
 # Application definition
@@ -223,3 +231,39 @@ EMAIL_USE_TLS = EMAIl_CONFIG.EMAIL_USE_TLS
 EMAIL_USE_SSL = EMAIl_CONFIG.EMAIL_USE_SSL
 EMAIL_HOST_USER = EMAIl_CONFIG.EMAIL_HOST_USER
 EMAIL_HOST_PASSWORD = EMAIl_CONFIG.EMAIL_HOST_PASSWORD
+
+
+class AWSConfig(BaseSettings):
+    AWS_PRESIGNED_EXPIRY: int
+    AWS_S3_ACCESS_KEY_ID: str
+    AWS_S3_SECRET_ACCESS_KEY: str
+    AWS_S3_REGION_NAME: str
+    AWS_STORAGE_BUCKET_NAME: str
+    AWS_DEFAULT_ACL: str
+    AWS_S3_SIGNATURE_VERSION: str
+
+
+AWS_CONFIG = AWSConfig()
+
+FILE_UPLOAD_STORAGE = env("FILE_UPLOAD_STORAGE")
+
+if FILE_UPLOAD_STORAGE == "local":
+    MEDIA_ROOT_NAME = "media"
+    MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_ROOT_NAME)
+    MEDIA_URL = f"/{MEDIA_ROOT_NAME}/"
+
+if FILE_UPLOAD_STORAGE == "s3":
+    # Using django-storages
+    # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html
+    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+
+    AWS_S3_ACCESS_KEY_ID = AWS_CONFIG.AWS_S3_ACCESS_KEY_ID
+    AWS_S3_SECRET_ACCESS_KEY = AWS_CONFIG.AWS_S3_SECRET_ACCESS_KEY
+    AWS_STORAGE_BUCKET_NAME = AWS_CONFIG.AWS_STORAGE_BUCKET_NAME
+    AWS_S3_REGION_NAME = AWS_CONFIG.AWS_S3_REGION_NAME
+    AWS_S3_SIGNATURE_VERSION = AWS_CONFIG.AWS_S3_SIGNATURE_VERSION or "s3v4"
+
+    # https://docs.aws.amazon.com/AmazonS3/latest/userguide/acl-overview.html#canned-acl
+    AWS_DEFAULT_ACL = AWS_CONFIG.AWS_DEFAULT_ACL or "private"
+
+    AWS_PRESIGNED_EXPIRY = AWS_CONFIG.AWS_PRESIGNED_EXPIRY or 10  # seconds
