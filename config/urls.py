@@ -4,6 +4,7 @@ from django.urls import path
 from django.urls.conf import include
 
 import authentication.urls as auth_url
+import photo.urls as photo_url
 
 # from drf_yasg import openapi
 # from drf_yasg.views import get_schema_view
@@ -27,6 +28,7 @@ urlpatterns = [
         include(
             [
                 path("auth/", include(auth_url)),
+                path("images/", include(photo_url)),
             ]
         ),
     ),
