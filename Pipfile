@@ -21,6 +21,8 @@ django-extensions = "*"
 pyotp = "*"
 mailtrap = "*"
 django-ninja = "*"
+django-environ = "*"
+boto3 = "*"
 
 [dev-packages]
 ruff = "*"
