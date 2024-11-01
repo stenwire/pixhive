@@ -3,6 +3,9 @@ from django.contrib.staticfiles.urls import static, staticfiles_urlpatterns
 from django.urls import path
 from django.urls.conf import include
 
+import authentication.urls as auth_url
+import photo.urls as photo_url
+
 # from drf_yasg import openapi
 # from drf_yasg.views import get_schema_view
 # from rest_framework import permissions
@@ -24,7 +27,8 @@ urlpatterns = [
         "api/v1/",
         include(
             [
-                path("auth/", include("authentication.urls")),
+                path("auth/", include(auth_url)),
+                path("images/", include(photo_url)),
             ]
         ),
     ),

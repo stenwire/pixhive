@@ -1,7 +1,5 @@
 from django.contrib import admin
 
-admin.autodiscover()
-
 
 class PixhiveAdminSite(admin.AdminSite):
     site_header = "Pixhive Administration"

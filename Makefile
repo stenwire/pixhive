@@ -28,7 +28,7 @@ install:
 	@pipenv install --dev
 
 lint:
-	@docker compose run --rm app ruff check .
+	@docker compose run --rm app ruff check . --fix
 
 migrations:
 	@docker compose run --rm app python manage.py makemigrations
@@ -37,7 +37,7 @@ migrate:
 	@docker compose run --rm app python manage.py migrate
 
 resetdb:
-	@docker compose run --rm api poetry run python src/manage.py reset_db --noinput
+	@docker compose run --rm app python manage.py reset_db --noinput
 
 run-command:
 	@docker compose run --rm app $(command)

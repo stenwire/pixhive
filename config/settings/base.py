@@ -10,13 +10,17 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
+import os
 from datetime import timedelta
 from pathlib import Path
 from typing import Literal
 
 import dj_database_url
+import environ
 from pydantic import PostgresDsn
 from pydantic_settings import BaseSettings
+
+env = environ.Env()
 
 EnvironmentType = Literal["dev", "staging", "prod"]
 
@@ -46,6 +50,10 @@ DEBUG = GENERAL_SETTINGS.DEBUG
 
 ALLOWED_HOSTS = GENERAL_SETTINGS.ALLOWED_HOSTS
 
+APP_DOMAIN = env("APP_DOMAIN", default="http://localhost:8000")
+
+FILE_UPLOAD_STORAGE = env("FILE_UPLOAD_STORAGE", default="local")  # local | s3
+
 
 # Application definition
 DJANGO_APPS = [
@@ -69,6 +77,9 @@ THIRD_PARTY_APPS = [
 
 CUSTOM_APPS = [
     "authentication",
+    "accounts",
+    "collection",
+    "photo",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + CUSTOM_APPS
@@ -89,14 +100,20 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
-        "APP_DIRS": True,
+        # "DIRS": [BASE_DIR / "templates"],
+        # "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+            ],
+            "loaders": [
+                (
+                    "django.template.loaders.app_directories.Loader",
+                    [BASE_DIR / "templates"],
+                ),
             ],
         },
     },
@@ -178,10 +195,12 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
     ),
 }
 
 SIMPLE_JWT = {
+    "USER_ID_FIELD": "pk",
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "AUTH_HEADER_TYPES": ("Bearer", "JWT"),
     "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
@@ -189,3 +208,62 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_LIFETIME_LATE_USER": timedelta(days=1),
     "SLIDING_TOKEN_LIFETIME_LATE_USER": timedelta(days=30),
 }
+
+AUTH_USER_MODEL = "authentication.CustomUser"
+
+
+class EmailConfig(BaseSettings):
+    EMAIL_BACKEND: str
+    EMAIL_HOST: str
+    EMAIL_PORT: int
+    EMAIL_USE_TLS: bool
+    EMAIL_USE_SSL: bool
+    EMAIL_HOST_USER: str
+    EMAIL_HOST_PASSWORD: str
+
+
+EMAIl_CONFIG = EmailConfig()
+
+EMAIL_BACKEND = EMAIl_CONFIG.EMAIL_BACKEND
+EMAIL_HOST = EMAIl_CONFIG.EMAIL_HOST
+EMAIL_PORT = EMAIl_CONFIG.EMAIL_PORT
+EMAIL_USE_TLS = EMAIl_CONFIG.EMAIL_USE_TLS
+EMAIL_USE_SSL = EMAIl_CONFIG.EMAIL_USE_SSL
+EMAIL_HOST_USER = EMAIl_CONFIG.EMAIL_HOST_USER
+EMAIL_HOST_PASSWORD = EMAIl_CONFIG.EMAIL_HOST_PASSWORD
+
+
+class AWSConfig(BaseSettings):
+    AWS_PRESIGNED_EXPIRY: int
+    AWS_S3_ACCESS_KEY_ID: str
+    AWS_S3_SECRET_ACCESS_KEY: str
+    AWS_S3_REGION_NAME: str
+    AWS_STORAGE_BUCKET_NAME: str
+    AWS_DEFAULT_ACL: str
+    AWS_S3_SIGNATURE_VERSION: str
+
+
+AWS_CONFIG = AWSConfig()
+
+FILE_UPLOAD_STORAGE = env("FILE_UPLOAD_STORAGE")
+
+if FILE_UPLOAD_STORAGE == "local":
+    MEDIA_ROOT_NAME = "media"
+    MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_ROOT_NAME)
+    MEDIA_URL = f"/{MEDIA_ROOT_NAME}/"
+
+if FILE_UPLOAD_STORAGE == "s3":
+    # Using django-storages
+    # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html
+    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+
+    AWS_S3_ACCESS_KEY_ID = AWS_CONFIG.AWS_S3_ACCESS_KEY_ID
+    AWS_S3_SECRET_ACCESS_KEY = AWS_CONFIG.AWS_S3_SECRET_ACCESS_KEY
+    AWS_STORAGE_BUCKET_NAME = AWS_CONFIG.AWS_STORAGE_BUCKET_NAME
+    AWS_S3_REGION_NAME = AWS_CONFIG.AWS_S3_REGION_NAME
+    AWS_S3_SIGNATURE_VERSION = AWS_CONFIG.AWS_S3_SIGNATURE_VERSION or "s3v4"
+
+    # https://docs.aws.amazon.com/AmazonS3/latest/userguide/acl-overview.html#canned-acl
+    AWS_DEFAULT_ACL = AWS_CONFIG.AWS_DEFAULT_ACL or "private"
+
+    AWS_PRESIGNED_EXPIRY = AWS_CONFIG.AWS_PRESIGNED_EXPIRY or 10  # seconds
