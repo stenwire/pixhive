@@ -1,13 +1,12 @@
 from django.db import models
-from django.conf import settings
+
+from accounts.models import Collector, Hiver
 from utils.models import TrackObjectStateMixin
-from accounts.models import Hiver, Collector
+
 
 class Collection(TrackObjectStateMixin):
     owner = models.ForeignKey(
-        Hiver,
-        on_delete=models.CASCADE,
-        related_name='collections'
+        Hiver, on_delete=models.CASCADE, related_name="collections"
     )
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
@@ -19,9 +18,9 @@ class Collection(TrackObjectStateMixin):
     purchased_by = models.ForeignKey(
         Collector,
         on_delete=models.SET_NULL,
-        related_name='collections',
+        related_name="collections",
         blank=True,
-        null=True
+        null=True,
     )
     collection_url = models.URLField(blank=True, null=True)
 
@@ -33,19 +32,21 @@ class PurchasedCollection(TrackObjectStateMixin):
     collector = models.ForeignKey(
         Collector,
         on_delete=models.SET_NULL,
-        related_name='purchased_collection',
+        related_name="purchased_collection",
         blank=True,
-        null=True
+        null=True,
     )
     collection = models.ForeignKey(
         Collection,
         on_delete=models.SET_NULL,
-        related_name='purchased_collection',
+        related_name="purchased_collection",
         blank=True,
-        null=True
+        null=True,
     )
     purchase_date = models.DateTimeField(auto_now_add=True)
     amount_paid = models.FloatField()
 
     def __str__(self):
-        return f"{self.collector.user.email} purchased {self.collection.name} on {self.purchase_date}"
+        return f"{
+            self.collector.user.email} purchased {
+                self.collection.name} on {self.purchase_date}"
